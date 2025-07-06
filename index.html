@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Neon Store</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    /* ─── Full-screen rotating food bg ───────────────────────────────── */
+    #bg {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-size: cover;
+      background-position: center;
+      z-index: -2;
+      transition: background-image 1s ease-in-out;
+    }
+    /* dark overlay for contrast */
+    #overlay {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      z-index: -1;
+    }
+
+    /* ─── Base reset & fonts ───────────────────────────────────────────── */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      color: #fff;
+      overflow-x: hidden;
+      padding: 1.5rem;
+    }
+    h1, h2 { font-family: 'Orbitron', sans-serif; }
+
+    /* ─── Header ───────────────────────────────────────────────────────── */
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    header h1 {
+      font-size: 3rem;
+      color: #ffeb3b;
+      text-shadow: 0 0 10px #ffeb3b;
+    }
+    header p {
+      font-size: 1.2rem;
+      color: #ddd;
+      margin-top: 0.5rem;
+    }
+
+    /* ─── Layout grid ──────────────────────────────────────────────────── */
+    .grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+    }
+    @media (max-width: 768px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    /* ─── Menu cards ───────────────────────────────────────────────────── */
+    .menu {
+      display: flex;
+      flex-direction: column;
+    }
+    #nameInput {
+      padding: 12px;
+      margin-bottom: 1rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    .item {
+      display: flex;
+      align-items: center;
+      background: rgba(255,255,255,0.1);
+      margin-bottom: 1rem;
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .item img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+    }
+    .item .info {
+      padding: 0 1rem;
+      flex: 1;
+    }
+    .item .info .name {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    .item .info .price {
+      font-size: .95rem;
+      color: #ffc107;
+      margin-top: 0.2rem;
+    }
+    .item:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 15px rgba(255,193,7,0.6);
+    }
+
+    /* ─── Cart & actions ─────────────────────────────────────────────── */
+    .cart {
+      background: rgba(0,0,0,0.4);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+    }
+    .cart h2 {
+      margin-bottom: 1rem;
+      color: #ffeb3b;
+      text-shadow: 0 0 6px #ffeb3b;
+    }
+    #cartList {
+      flex: 1;
+      list-style: none;
+      overflow-y: auto;
+      margin-bottom: 1rem;
+    }
+    #cartList li {
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+    #total {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #4caf50;
+      margin-bottom: 1.2rem;
+    }
+    .actions button {
+      margin-bottom: .75rem;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: #00e5ff;
+      color: #111;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s, transform .2s;
+    }
+    .actions button:hover {
+      background: #18ffff;
+      transform: scale(1.02);
+    }
+
+    /* ─── EcoCash section ─────────────────────────────────────────────── */
+    .eco {
+      text-align: center;
+      margin-top: 1.5rem;
+    }
+    .eco p { font-size: .9rem; }
+    .eco img {
+      width: 140px;
+      margin-top: .5rem;
+      border-radius: 8px;
+      box-shadow: 0 0 10px #18ffff;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- rotating background + dark overlay -->
+  <div id="bg"></div>
+  <div id="overlay"></div>
+
+  <header>
+    <h1>🌟 The Neon Store</h1>
+    <p>Fresh vibes. Fast checkout. Full flavor.</p>
+  </header>
+
+  <div class="grid">
+    <!-- MENU COLUMN -->
+    <section class="menu">
+      <input id="nameInput" type="text" placeholder="Your name..." />
+      <h2>Menu</h2>
+      <div class="item" onclick="addItem('Burger',3.5)">
+        <img src="https://source.unsplash.com/80x80/?burger" alt="Burger"/>
+        <div class="info">
+          <div class="name">🍔 Burger</div>
+          <div class="price">$1.50</div>
+        </div>
+      </div>
+      <div class="item" onclick="addItem('Pizza',2.5)">
+        <img src="https://source.unsplash.com/80x80/?pizza" alt="Pizza"/>
+        <div class="info">
+          <div class="name">🍕 Pizza</div>
+          <div class="price">$2.50</div>
+        </div>
+      </div>
+      <div class="item" onclick="addItem('Sadza & Beef Stew',4.5)">
+        <img src="https://source.unsplash.com/80x80/?stew" alt="Sadza Stew"/>
+        <div class="info">
+          <div class="name">🍛 Sadza & Beef Stew</div>
+          <div class="price">$3.50</div>
+        </div>
+      </div>
+      <div class="item" onclick="addItem('Maputi',0.5)">
+        <img src="https://source.unsplash.com/80x80/?corn" alt="Maputi"/>
+        <div class="info">
+          <div class="name">🫓 Maputi</div>
+          <div class="price">$0.20</div>
+        </div>
+      </div>
+      <div class="item" onclick="addItem('Donut',1.2)">
+        <img src="https://source.unsplash.com/80x80/?donut" alt="Donut"/>
+        <div class="info">
+          <div class="name">🍩 Donut</div>
+          <div class="price">$0.50</div>
+        </div>
+      </div>
+      <div class="item" onclick="addItem('Juice',1.5)">
+        <img src="https://source.unsplash.com/80x80/?juice" alt="Juice"/>
+        <div class="info">
+          <div class="name">🧃 Juice</div>
+          <div class="price">$1.00</div>
+        </div>
+      </div>
+      <div class="item" onclick="addItem('Coffee',1.8)">
+        <img src="https://source.unsplash.com/80x80/?coffee" alt="Coffee"/>
+        <div class="info">
+          <div class="name">☕ Coffee</div>
+          <div class="price">$1.00</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CART COLUMN -->
+    <aside class="cart">
+      <h2>Your Cart</h2>
+      <ul id="cartList"></ul>
+      <div id="total">Total: $0.00</div>
+      <div class="actions">
+        <button onclick="checkout()">✅ Checkout</button>
+        <button onclick="downloadReceipt()">📄 Download Receipt</button>
+        <button onclick="sendToWhatsApp()">📲 WhatsApp Order</button>
+        <button onclick="toggleMusic()">🎶 Toggle Music</button>
+        <button onclick="resetCart()">🔁 Reset Cart</button>
+      </div>
+      <div class="eco">
+        <p>EcoCash: send to <strong>078 522 7985</strong></p>
+        <img src="https://upload.wikimedia.org/wikipedia/commons/e/e0/QR_code_example.svg" alt="EcoCash QR"/>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    // ─── Background slideshow ─────────────────────────────────────────
+    const bg = document.getElementById('bg');
+    const pics = [
+      'https://source.unsplash.com/1600x900/?burger',
+      'https://source.unsplash.com/1600x900/?pizza',
+      'https://source.unsplash.com/1600x900/?food',
+      'https://source.unsplash.com/1600x900/?dessert',
+      'https://source.unsplash.com/1600x900/?coffee'
+    ];
+    let idx = 0;
+    function rotateBg() {
+      bg.style.backgroundImage = `url(${pics[idx]})`;
+      idx = (idx + 1) % pics.length;
+    }
+    rotateBg();
+    setInterval(rotateBg, 5000);
+
+    // ─── Cart logic ───────────────────────────────────────────────────
+    let total = parseFloat(localStorage.getItem('total')) || 0;
+    let cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+
+    function updateCart() {
+      document.getElementById('total').innerText = `Total: $${total.toFixed(2)}`;
+      const list = document.getElementById('cartList');
+      list.innerHTML = '';
+      cartItems.forEach(i => {
+        const li = document.createElement('li');
+        li.textContent = `${i.name}: $${i.price.toFixed(2)}`;
+        list.appendChild(li);
+      });
+    }
+
+    function addItem(name, price) {
+      total += price;
+      cartItems.push({name, price});
+      localStorage.setItem('total', total);
+      localStorage.setItem('cartItems', JSON.stringify(cartItems));
+      updateCart();
+      alert(`✅ "${name}" added`);
+    }
+
+    function checkout() {
+      const name = document.getElementById('nameInput').value.trim() || 'Customer';
+      if (!cartItems.length) {
+        alert('🛑 Cart is empty!');
+        return;
+      }
+      alert(`🎉 Thanks, ${name}! Proceed to pay or download receipt.`);
+    }
+
+    function downloadReceipt() {
+      const name = document.getElementById('nameInput').value.trim() || 'Customer';
+      let txt = `🧾 Neon Store Receipt\nName: ${name}\n\nItems:\n`;
+      cartItems.forEach(i => txt += `- ${i.name}: $${i.price.toFixed(2)}\n`);
+      txt += `\nTotal: $${total.toFixed(2)}\nThank you!`;
+      const blob = new Blob([txt],{type:'text/plain'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'receipt.txt';
+      a.click();
+    }
+
+    function sendToWhatsApp() {
+      const name = document.getElementById('nameInput').value.trim() || 'Customer';
+      const items = cartItems.map(i=>`- ${i.name}: $${i.price.toFixed(2)}`).join('%0A');
+      const msg = `Hi, I'm ${name}.%0AMy order:%0A${items}%0ATotal: $${total.toFixed(2)}`;
+      window.open(`https://wa.me/263713090327?text=${msg}`, '_blank');
+    }
+
+    function resetCart() {
+      if (confirm('Reset cart?')) {
+        total = 0; cartItems = [];
+        localStorage.removeItem('total');
+        localStorage.removeItem('cartItems');
+        updateCart();
+        alert('🧹 Cart cleared');
+      }
+    }
+
+    // ─── Music toggle ────────────────────────────────────────────────
+    let music;
+    function toggleMusic() {
+      if (!music) {
+        music = new Audio('https://cdn.pixabay.com/download/audio/2022/10/26/audio_c50a29b607.mp3');
+        music.loop = true;
+      }
+      music.paused ? music.play() : music.pause();
+    }
+
+    // initialize display
+    updateCart();
+  </script>
+</body>
+</html>
